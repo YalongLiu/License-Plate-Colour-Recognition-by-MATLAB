@@ -55,24 +55,24 @@ for i = 1:corenum:LengthFiles;%16个图像一批，同时处理 Processing 16 images in a 
         
         %Step5 对二值图像进行区域提取，并计算区域特征参数。进行区域特征参数比较，提取车牌区域
         [L,num] = bwlabel(bg2,8);%标注二进制图像中已连接的部分  Callout the connected part of a binary image
-        Feastats = regionprops(L,'basic');%计算图像区域的特征尺寸 Calculate the feature size of the image area
-        Area=[Feastats.Area];%区域面积 Area measure
-        if ~isempty(Area)%区域是否为空，即没有黄色区域 Is area empty or not
-            BoundingBox=[Feastats.BoundingBox];%[x y width height]车牌的框架大小 The size of licence plate
-            x = floor(BoundingBox(1));%向下取整，剪切区域时，坐标点不允许有小数 Round down,coordinate points are not allowed in decimal when shear zone
+        Feastats = regionprops(L,'basic');%计算图像区域的特征尺寸
+        Area=[Feastats.Area];%区域面积 
+        if ~isempty(Area)%区域是否为空，即没有黄色区域
+            BoundingBox=[Feastats.BoundingBox];%[x y width height]车牌的框架大小
+            x = floor(BoundingBox(1));%向下取整，剪切区域时，坐标点不允许有小数
             y = floor(BoundingBox(2));
             width = BoundingBox(3);
             height = BoundingBox(4);
             if x>0 && x < 1800 && y > 0 && y < 1100
-                imgcut= Scolor(y:(y+height),x:(x+width),:);%剪切出黄色车牌区域 Cut out the yellow plate area
+                imgcut= Scolor(y:(y+height),x:(x+width),:);%剪切出黄色车牌区域
                 % imshow(imgcut);
-                imgfinal = imresize(imgcut,[1,1]);%计算颜色均值  Calculate color mean
-                signa = imgfinal(:,:,1);%通道红 Red channel
-                signb = imgfinal(:,:,2);%通道绿 Green channel
-                signc = imgfinal(:,:,3);%通道蓝 Blue channel
-                if signa - signc > 80 && signb -signc > 70 && signc < 70 %大致符合黄色 Set the num to recognize colors
-                    copyfile(strcat(inputpath,Files(i+labindex-1).name), strcat(outputpath,Files(i+labindex-1).name));%将符合要求的图片复制到另一个文件夹中 Copy selected images to output folder
-                    fprintf('OK:No.%d %s\n\n',i+labindex-1,Files(i+labindex-1).name);%符合要求的图片信息 Selected images' information
+                imgfinal = imresize(imgcut,[1,1]);%计算颜色均值
+                signa = imgfinal(:,:,1);%通道红
+                signb = imgfinal(:,:,2);%通道绿
+                signc = imgfinal(:,:,3);%通道蓝
+                if signa - signc > 80 && signb -signc > 70 && signc < 70 %大致符合黄色
+                    copyfile(strcat(inputpath,Files(i+labindex-1).name), strcat(outputpath,Files(i+labindex-1).name));%将符合要求的图片复制到另一个文件夹中
+                    fprintf('OK:No.%d %s\n\n',i+labindex-1,Files(i+labindex-1).name);%符合要求的图片信息
                 end
             end
         end
@@ -81,4 +81,4 @@ end
 %% 结束
 clear ;
 close all;
-matlabpool close;%关闭计算核心 Close cores
+matlabpool close;%关闭计算核心
